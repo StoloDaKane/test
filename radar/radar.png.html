@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Radar</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: transparent;
+      overflow: hidden;
+    }
+    canvas {
+      display: none;
+    }
+    img {
+      max-width: 100%;
+      max-height: 90vh;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="radarCanvas" width="600" height="600"></canvas>
+  <img id="radarImage" src="" style="display:none;">
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash.substring(1);
+      const params = hash.split('-').map(Number);
+      
+      const isValid = params.length === 5 && 
+                     params.every(v => !isNaN(v) && v >= 0 && v <= 10);
+
+      const values = isValid ? params : [5, 5, 5, 5, 5];
+
+      const canvas = document.getElementById('radarCanvas');
+      const ctx = canvas.getContext('2d');
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(centerX, centerY) * 0.7;
+      const rotationAngle = -Math.PI / 10;
+      
+      const vertexAngles = [
+        0, 
+        Math.PI * 2/5, 
+        Math.PI * 4/5, 
+        Math.PI * 6/5, 
+        Math.PI * 8/5
+      ];
+      
+      ctx.strokeStyle = '#888';
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 5; i++) {
+        const r = radius * i / 5;
+        ctx.beginPath();
+        for (let j = 0; j < 5; j++) {
+          const angle = vertexAngles[j] + rotationAngle;
+          const x = centerX + r * Math.cos(angle);
+          const y = centerY + r * Math.sin(angle);
+          if (j === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+      
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const angle = vertexAngles[i] + rotationAngle;
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const angle = vertexAngles[i] + rotationAngle;
+        const r = (values[i] / 10) * radius;
+        const x = centerX + r * Math.cos(angle);
+        const y = centerY + r * Math.sin(angle);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(255, 165, 0, 0.5)';
+      ctx.fill();
+      ctx.strokeStyle = '#FFA500';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      
+      ctx.fillStyle = '#FFA500';
+      for (let i = 0; i < 5; i++) {
+        const angle = vertexAngles[i] + rotationAngle;
+        const r = (values[i] / 10) * radius;
+        const x = centerX + r * Math.cos(angle);
+        const y = centerY + r * Math.sin(angle);
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
+      const icons = ['👊', '🛡️', '🏃', '💬', '🧠'];
+      const iconDistance = radius * 1.25;
+      
+      for (let i = 0; i < 5; i++) {
+        const angle = vertexAngles[i] + rotationAngle;
+        const x = centerX + iconDistance * Math.cos(angle);
+        const y = centerY + iconDistance * Math.sin(angle);
+
+        ctx.beginPath();
+        ctx.arc(x, y, 22, 0, Math.PI * 2);
+        ctx.fillStyle = '#333';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.font = '20px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fff';
+        ctx.fillText(icons[i], x, y);
+      }
+      const img = document.getElementById('radarImage');
+      img.src = canvas.toDataURL('image/png');
+      img.style.display = 'block';
+      canvas.style.display = 'none';
+      document.title = `Радар: ${values.join('-')}`;
+    });
+  </script>
+</body>
+</html>
