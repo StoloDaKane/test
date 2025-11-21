@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+  <style>
+    .grid { fill: none; stroke: #888; stroke-width: 1; }
+    .axis { fill: none; stroke: #888; stroke-width: 1; }
+    .data { fill: rgba(255, 165, 0, 0.5); stroke: #FFA500; stroke-width: 2.5; }
+    .point { fill: #FFA500; }
+    .icon-bg { fill: #333; stroke: #fff; stroke-width: 1.5; }
+    .icon-text { fill: white; font-family: Arial; font-size: 20px; text-anchor: middle; dominant-baseline: central; }
+  </style>
+  <script type="text/javascript">
+    // <![CDATA[
+    const urlParams = new URLSearchParams(window.location.search);
+    const combat = parseInt(urlParams.get('combat')) || 5;
+    const vigor = parseInt(urlParams.get('vigor')) || 5;
+    const mobility = parseInt(urlParams.get('mobility')) || 5;
+    const charisma = parseInt(urlParams.get('charisma')) || 5;
+    const intellect = parseInt(urlParams.get('intellect')) || 5;
+
+    const centerX = 250;
+    const centerY = 250;
+    const radius = 160;
+    const rotationAngle = -Math.PI / 10; // -18 degrees
+
+    // Vertex angles (in radians)
+    const angles = [
+      0,
+      Math.PI * 2/5,
+      Math.PI * 4/5,
+      Math.PI * 6/5,
+      Math.PI * 8/5
+    ];
+
+    // Draw grid (concentric pentagons)
+    for (let i = 1; i <= 5; i++) {
+      const r = radius * i / 5;
+      let path = '';
+      for (let j = 0; j < 5; j++) {
+        const angle = angles[j] + rotationAngle;
+        const x = centerX + r * Math.cos(angle);
+        const y = centerY + r * Math.sin(angle);
+        path += `${j === 0 ? 'M' : 'L'} ${x} ${y} `;
+      }
+      path += 'Z';
+      
+      const gridPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      gridPath.setAttribute('d', path);
+      gridPath.setAttribute('class', 'grid');
+      document.querySelector('svg').appendChild(gridPath);
+    }
+
+    // Draw axes
+    for (let i = 0; i < 5; i++) {
+      const angle = angles[i] + rotationAngle;
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+      
+      const axisLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      axisLine.setAttribute('x1', centerX);
+      axisLine.setAttribute('y1', centerY);
+      axisLine.setAttribute('x2', x);
+      axisLine.setAttribute('y2', y);
+      axisLine.setAttribute('class', 'axis');
+      document.querySelector('svg').appendChild(axisLine);
+    }
+
+    // Draw data polygon
+    let dataPath = '';
+    const values = [combat, vigor, mobility, charisma, intellect];
+    for (let i = 0; i < 5; i++) {
+      const angle = angles[i] + rotationAngle;
+      const r = (values[i] / 10) * radius;
+      const x = centerX + r * Math.cos(angle);
+      const y = centerY + r * Math.sin(angle);
+      dataPath += `${i === 0 ? 'M' : 'L'} ${x} ${y} `;
+    }
+    dataPath += 'Z';
+
+    const dataPolygon = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    dataPolygon.setAttribute('d', dataPath);
+    dataPolygon.setAttribute('class', 'data');
+    document.querySelector('svg').appendChild(dataPolygon);
+
+    // Draw points
+    for (let i = 0; i < 5; i++) {
+      const angle = angles[i] + rotationAngle;
+      const r = (values[i] / 10) * radius;
+      const x = centerX + r * Math.cos(angle);
+      const y = centerY + r * Math.sin(angle);
+      
+      const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      point.setAttribute('cx', x);
+      point.setAttribute('cy', y);
+      point.setAttribute('r', 5);
+      point.setAttribute('class', 'point');
+      document.querySelector('svg').appendChild(point);
+    }
+
+    // Draw icons
+    const icons = ['👊', '🛡️', '🏃', '💬', '🧠'];
+    const iconDistance = radius * 1.25;
+    
+    for (let i = 0; i < 5; i++) {
+      const angle = angles[i] + rotationAngle;
+      const x = centerX + iconDistance * Math.cos(angle);
+      const y = centerY + iconDistance * Math.sin(angle);
+      
+      // Icon background
+      const iconBg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      iconBg.setAttribute('cx', x);
+      iconBg.setAttribute('cy', y);
+      iconBg.setAttribute('r', 22);
+      iconBg.setAttribute('class', 'icon-bg');
+      document.querySelector('svg').appendChild(iconBg);
+      
+      // Icon text
+      const iconText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      iconText.setAttribute('x', x);
+      iconText.setAttribute('y', y);
+      iconText.setAttribute('class', 'icon-text');
+      iconText.textContent = icons[i];
+      document.querySelector('svg').appendChild(iconText);
+    }
+    // ]]>
+  </script>
+</svg>
